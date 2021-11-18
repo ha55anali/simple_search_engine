@@ -138,7 +138,7 @@ def read_terminfo(path):
     
     return term_info_dict
 
-def seek_inv_index(offset, doc_id, path):
+def seek_inv_index(offset, doc_id, path, return_index=False):
     doc_id=str(doc_id)
     found=False
     with open(path, 'r') as f:
@@ -147,6 +147,8 @@ def seek_inv_index(offset, doc_id, path):
         line = [x for x in line[1:] if x != '']
 
         logging.debug(f'inv index {line}')
+        if return_index:
+            return line
         for l in line:
             if l.split(':')[0] == doc_id:
                 found=True
@@ -194,20 +196,21 @@ def score(topics):
                 score:
     '''
     
-def get_tf(word, seek_inv_index , termids, term_info):
+def get_tf(word, doc_id, seek_inv_index , termids, term_info):
     '''
         word: word to be searched in str form
+        doc_id: int
         seek_inv_index: function(offset)
         termids: mapping of word to ids
         terminfo: gives offset of word
     '''
     
     tid=termids[word]
-    return seek_inv_index(term_info[tid]['offset'])
+    return seek_inv_index(term_info[tid]['offset'], doc_id)
 
 def get_total_documents(f_index_path):
     return sum(1 for line in open(f_index_path))
 
 def get_dfi(word , termids, term_info):
     tid=termids[word]
-    return term_info[tid]['d_count']
+    return int(term_info[tid]['d_count'])
